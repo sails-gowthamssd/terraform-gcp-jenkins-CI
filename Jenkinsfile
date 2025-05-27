@@ -4,9 +4,12 @@ pipeline {
   environment {
     GOOGLE_APPLICATION_CREDENTIALS = "${WORKSPACE}\\terraform-sa.json"
     REGION = "us-central1" // ✅ Replace with your Artifact Registry region
-    PROJECT_ID = "my-kubernetes-project-456905" // ✅ Replace with your GCP Project ID
+    PROJECT_ID = "my-kubernetes-project-456905" // ✅ Replace with your GCP project ID
     REPOSITORY = "hello-world-jenkins-repo" // ✅ Replace with your Artifact Registry repo
-    IMAGE_NAME = "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/hello-world:latest"
+    IMAGE_BASE = "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/hello-world"
+    IMAGE_TAG = "build-${BUILD_NUMBER}"
+    IMAGE_NAME = "${IMAGE_BASE}:${IMAGE_TAG}"
+    IMAGE_LATEST = "${IMAGE_BASE}:latest"
   }
 
   stages {
@@ -32,15 +35,23 @@ pipeline {
       }
     }
 
-    stage('Build Docker Image') {
+    stage('Verify Docker Running') {
       steps {
-        bat 'docker build -t %IMAGE_NAME% .'
+        bat 'docker version || (echo Docker is not running. Please start Docker Desktop. && exit 1)'
       }
     }
 
-    stage('Push Docker Image') {
+    stage('Build Docker Image') {
+      steps {
+        bat 'docker build -t %IMAGE_NAME% .'
+        bat 'docker tag %IMAGE_NAME% %IMAGE_LATEST%'
+      }
+    }
+
+    stage('Push Docker Images') {
       steps {
         bat 'docker push %IMAGE_NAME%'
+        bat 'docker push %IMAGE_LATEST%'
       }
     }
   }
