@@ -12,7 +12,7 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        git url: 'https://github.com/your-org/hello-world-app.git', branch: 'main'
+        git url: 'https://github.com/sails-gowthamssd/terraform-gcp-jenkins-CI.git', branch: 'main'
       }
     }
 
