@@ -55,6 +55,13 @@ pipeline {
       }
     }
   }
+  stage('Trigger CD') {
+  steps {
+    build job: 'helloapp-CD', parameters: [
+      string(name: 'BUILD_TAG', value: "build-${BUILD_NUMBER}")
+    ]
+  }
+}
 
   post {
     cleanup {
