@@ -2,6 +2,7 @@ pipeline {
   agent any
 
   environment {
+    BUILD_TAG = "${params.BUILD_TAG}"
     GOOGLE_APPLICATION_CREDENTIALS = "${WORKSPACE}\\terraform-sa.json"
     REGION = "us-central1" // ✅ Replace with your Artifact Registry region
     PROJECT_ID = "my-kubernetes-project-456905" // ✅ Replace with your GCP project ID
@@ -54,14 +55,15 @@ pipeline {
         bat 'docker push %IMAGE_LATEST%'
       }
     }
+    stage('Trigger CD') {
+      steps {
+        build job: 'helloapp-CD', parameters: [
+          string(name: 'BUILD_TAG', value: "build-${BUILD_NUMBER}")
+        ]
+     }
+    }
   }
-  stage('Trigger CD') {
-  steps {
-    build job: 'helloapp-CD', parameters: [
-      string(name: 'BUILD_TAG', value: "build-${BUILD_NUMBER}")
-    ]
-  }
-}
+  
 
   post {
     cleanup {
