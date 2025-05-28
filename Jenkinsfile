@@ -2,7 +2,6 @@ pipeline {
   agent any
 
   environment {
-    BUILD_TAG = "${params.BUILD_TAG}"
     GOOGLE_APPLICATION_CREDENTIALS = "${WORKSPACE}\\terraform-sa.json"
     REGION = "us-central1" // ✅ Replace with your Artifact Registry region
     PROJECT_ID = "my-kubernetes-project-456905" // ✅ Replace with your GCP project ID
